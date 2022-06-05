@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Калькулятор</title>
+   </head>
+
+   <body>
+      <script>
+         function calculate(str) {
+            // основные переменные
+            let firstNumber,
+               secondNumber,
+               tmpString,
+               answer = '';
+            const digits = {
+               C: 100,
+               XC: 90,
+               L: 50,
+               XL: 40,
+               X: 10,
+               IX: 9,
+               V: 5,
+               IV: 4,
+               I: 1,
+            };
+            // Основная логика калькулятора
+            const calc = () => {
+               if (firstNumber <= 0 || firstNumber > 10 || secondNumber <= 0 || secondNumber > 10) {
+                  throw new Error('Используется не подходящее число');
+               } else {
+                  for (let i of tmpString) {
+                     switch (i) {
+                        case '-':
+                           answer = firstNumber - secondNumber;
+                           break;
+                        case '+':
+                           answer = +firstNumber + +secondNumber;
+                           break;
+                        case '*':
+                           answer = firstNumber * secondNumber;
+                           break;
+                        case '/':
+                           answer = Math.trunc(firstNumber / secondNumber);
+                           break;
+                     }
+                  }
+               }
+            };
+            //перевод римских в арабские
+            const rom2arab = (text) => {
+               return text
+                  .toUpperCase()
+                  .split('')
+                  .reduce((r, v, i, arr) => {
+                     const [a, b, c] = [digits[arr[i]], digits[arr[i + 1]], digits[arr[i + 2]]];
+
+                     return b > a ? r - a : r + a;
+                  }, 0);
+            };
+            //перевод арабских в римские
+            const arab2rom = (num) => {
+               let result = '';
+               for (let key in digits)
+                  while (num >= digits[key]) {
+                     result += key;
+                     num -= digits[key];
+                  }
+               return result;
+            };
+
+            tmpString = str.split(' ');
+
+            firstNumber = tmpString[0];
+            secondNumber = tmpString[tmpString.length - 1];
+
+            if (tmpString.length >= 4) {
+               throw new Error(
+                  'Формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)',
+               );
+            } else if (tmpString.length <= 2) {
+               throw new Error('Cтрока не является математической операцией');
+            } else if (isNaN(firstNumber) && isNaN(secondNumber)) {
+               //перевод и вычисление римских цифр
+               firstNumber = rom2arab(firstNumber);
+               secondNumber = rom2arab(secondNumber);
+               calc();
+               if (answer < 0) {
+                  answer = '';
+                  console.log('В римской системе нет отрицательных чисел');
+               } else if (answer == 0) {
+                  answer = String(answer);
+               } else {
+                  answer = arab2rom(answer);
+               }
+            } else if (isNaN(firstNumber) || isNaN(secondNumber)) {
+               throw new Error('Используются одновременно разные системы счисления');
+            } else {
+               calc();
+               answer = String(answer);
+            }
+
+            return answer;
+         }
+
+         console.log(calculate('x - v'));
+      </script>
+   </body>
+</html>
